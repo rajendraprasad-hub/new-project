@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infosys Portal - Resources</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="logo-box">
+    <img src="assets/infosys-logo.svg" alt="Infosys Logo">
+    <div class="portal-title">Internal Web Portal</div>
+  </div>
+
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a class="active" href="resources.html">Resources</a></li>
+      <li><a href="reports.html">Reports</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Resources</h2>
+    <p class="small-text">Search and download internal documents safely.</p>
+
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="Search files (PDF, Excel, PPT)...">
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="filesTableBody">
+        <tr><td colspan="4">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Infosys BPM | Internal Use Only
+</footer>
+
+</body>
+</html>
+

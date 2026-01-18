@@ -1,0 +1,207 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  color: #222;
+}
+
+/* ===== Header/Navbar ===== */
+header {
+  background: #0033a0;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-box img {
+  width: 120px;
+  height: auto;
+}
+
+.portal-title {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 18px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+nav a:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+nav a.active {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ===== Layout ===== */
+.container {
+  max-width: 1100px;
+  margin: 22px auto;
+  padding: 0 15px;
+}
+
+/* ===== Cards ===== */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0px 2px 12px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+  color: #0033a0;
+  margin-bottom: 10px;
+}
+
+.card p {
+  line-height: 1.5;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-block;
+  border: none;
+  background: #0033a0;
+  color: white;
+  padding: 9px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background: #00257a;
+}
+
+.btn-secondary {
+  background: #007acc;
+}
+
+.btn-secondary:hover {
+  background: #005f99;
+}
+
+/* ===== Resources Search ===== */
+.search-box {
+  margin: 10px 0 14px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+/* ===== Table ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 2px 12px rgba(0,0,0,0.06);
+}
+
+th {
+  background: #0033a0;
+  color: white;
+  text-align: left;
+  padding: 12px;
+  font-size: 14px;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+tr:hover {
+  background: #f0f6ff;
+}
+
+.file-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-type img {
+  width: 22px;
+  height: 22px;
+}
+
+/* ===== Footer ===== */
+footer {
+  text-align: center;
+  padding: 14px;
+  background: #0033a0;
+  color: white;
+  margin-top: 28px;
+}
+
+/* ===== Contact Form ===== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+form input, form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+}
+
+form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.small-text {
+  font-size: 13px;
+  color: #555;
+}
+
+/* ===== Report Chart Box ===== */
+.chart-box {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0px 2px 12px rgba(0,0,0,0.08);
+}
+

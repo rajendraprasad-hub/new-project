@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infosys Portal - Reports</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+<header>
+  <div class="logo-box">
+    <img src="assets/infosys-logo.svg" alt="Infosys Logo">
+    <div class="portal-title">Internal Web Portal</div>
+  </div>
+
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="resources.html">Resources</a></li>
+      <li><a class="active" href="reports.html">Reports</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Reports Dashboard</h2>
+    <p class="small-text">
+      This page will show server health, backup status and monitoring graphs.
+      (Later we will integrate Prometheus + Grafana)
+    </p>
+  </div>
+
+  <div class="chart-box">
+    <h2>System Performance (Sample Graph)</h2>
+    <p class="small-text">CPU + Memory trend</p>
+    <canvas id="healthChart" width="620" height="300"></canvas>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Infosys BPM | Internal Use Only
+</footer>
+
+</body>
+</html>
+

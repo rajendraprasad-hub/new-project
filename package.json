@@ -1,0 +1,13 @@
+{
+  "name": "infosys-portal",
+  "version": "1.0.0",
+  "description": "Infosys Internal Web Portal",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+
