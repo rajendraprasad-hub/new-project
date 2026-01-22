@@ -34,7 +34,7 @@ logs/
 # =========================
 # Uploads (important)
 # =========================
-docs/uploads/
+docs/
 backend/kb_uploads/
 
 # =========================
