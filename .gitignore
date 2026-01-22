@@ -1,4 +1,51 @@
+# =========================
+# Node / NPM
+# =========================
 node_modules/
-docs/
-.DS_store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Environment / Secrets
+# =========================
 .env
+.env.*
+!.env.example
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Uploads (important)
+# =========================
+docs/uploads/
+backend/kb_uploads/
+
+# =========================
+# Runtime JSON data (optional but recommended)
+# =========================
+backend/activityLogs.json
+backend/knowledgeUpdates.json
+backend/announcements.json
+
+# =========================
+# Session store (if created)
+# =========================
+sessions/
+

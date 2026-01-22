@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Infosys Portal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div style="max-width: 400px; margin: 80px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+    <h2 style="text-align:center;">Employee Login</h2>
+
+    <form id="loginForm">
+      <label>Employee ID</label>
+      <input type="text" id="empId" required style="width:100%; padding:10px; margin:8px 0;" />
+
+      <label>Password</label>
+      <input type="password" id="password" required style="width:100%; padding:10px; margin:8px 0;" />
+
+      <button type="submit" style="width:100%; padding:10px; margin-top:10px;">Login</button>
+    </form>
+
+    <p id="msg" style="color:red; text-align:center; margin-top:10px;"></p>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const msg = document.getElementById("msg");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+
+      const empId = document.getElementById("empId").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ empId, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+  if (data.mustChangePassword) {
+    window.location.href = "/change-password.html";
+  } else {
+    window.location.href = "/index.html";
+  }
+}
+         else {
+          msg.textContent = data.message || "Login failed";
+        }
+      } catch (err) {
+        msg.textContent = "Server error. Try again.";
+      }
+    });
+  </script>
+</body>
+</html>
+

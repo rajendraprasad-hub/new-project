@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="auth-check.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Infosys Portal - Reports</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <script src="script.js" defer></script>
 </head>
+
 <body>
 
 <header>
@@ -19,26 +21,105 @@
     <ul>
       <li><a href="index.html">Home</a></li>
       <li><a href="resources.html">Resources</a></li>
+      <li><a href="knowledge.html">Knowledge Base</a></li>
       <li><a class="active" href="reports.html">Reports</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
+
+  <!-- ✅ Profile Dropdown Right Side -->
+<div class="nav-right">
+
+  <!-- ✅ Dark Mode Button -->
+  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+
+  <div class="profile-menu">
+    <button class="profile-btn" onclick="toggleProfileDropdown()">
+      <span class="profile-icon">👤</span>
+      <span class="profile-text">Profile</span>
+      <span class="profile-arrow">▾</span>
+    </button>
+
+    <div id="profileDropdown" class="profile-dropdown">
+      <div class="profile-top">
+        <div class="profile-avatar">👤</div>
+        <div>
+          <div class="profile-name" id="pName">-</div>
+          <div class="profile-sub" id="pEmpId">-</div>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <p><b>Team:</b> <span id="pTeam">-</span></p>
+        <p><b>Role:</b> <span id="pRole">-</span></p>
+      </div>
+
+      <hr />
+
+      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
+    </div>
+  </div>
+</div>
 </header>
 
 <div class="container">
 
+  <!-- ✅ ADMIN Stats -->
   <div class="card">
-    <h2>Reports Dashboard</h2>
-    <p class="small-text">
-      This page will show server health, backup status and monitoring graphs.
-      (Later we will integrate Prometheus + Grafana)
-    </p>
+    <h2>Admin Dashboard</h2>
+    <p class="small-text">Only Admin users can view portal usage analytics.</p>
+
+    <div id="statsBox">
+      <p>Loading today stats...</p>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button class="btn" onclick="exportCSV()">Export Logs (CSV)</button>
+    </div>
   </div>
 
-  <div class="chart-box">
-    <h2>System Performance (Sample Graph)</h2>
-    <p class="small-text">CPU + Memory trend</p>
-    <canvas id="healthChart" width="620" height="300"></canvas>
+  <!-- ✅ Admin Announcement Post -->
+  <div class="card">
+    <h2>Post Announcement (Admin)</h2>
+    <p class="small-text">Announcements can be posted for ALL teams or a specific team.</p>
+
+    <input id="announceTitle" type="text" placeholder="Announcement Title" style="width:100%; padding:10px; margin:8px 0;">
+    <textarea id="announceMessage" rows="4" placeholder="Announcement Message" style="width:100%; padding:10px; margin:8px 0;"></textarea>
+
+    <select id="announceTeam" style="width:100%; padding:10px; margin:8px 0;">
+      <option value="ALL">ALL Teams</option>
+      <option value="MFPM">MFPM</option>
+      <option value="COE">COE</option>
+      <option value="CMO">CMO</option>
+      <option value="CIV">CIV</option>
+      <option value="GCM">GCM</option>
+    </select>
+
+    <button class="btn" onclick="postAnnouncement()">Post Announcement</button>
+
+    <p id="announceMsg" style="margin-top:10px;"></p>
+  </div>
+
+  <!-- ✅ Recent Activity Logs -->
+  <div class="card">
+    <h2>Recent Activity (Admin)</h2>
+    <p class="small-text">Latest 20 user activities (Login / Upload / Download / Password change).</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Emp ID</th>
+          <th>Name</th>
+          <th>File/Info</th>
+        </tr>
+      </thead>
+
+      <tbody id="activityTableBody">
+        <tr><td colspan="5">Loading activity...</td></tr>
+      </tbody>
+    </table>
   </div>
 
 </div>

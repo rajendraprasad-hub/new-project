@@ -179,7 +179,8 @@ form {
   gap: 12px;
 }
 
-form input, form textarea {
+form input,
+form textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ddd;
@@ -203,5 +204,209 @@ form textarea {
   border-radius: 12px;
   padding: 18px;
   box-shadow: 0px 2px 12px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   PROFILE DROPDOWN (NAV RIGHT)
+========================= */
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.profile-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.profile-icon {
+  font-size: 16px;
+}
+
+.profile-arrow {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Dropdown box */
+.profile-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 52px;
+  width: 260px;
+
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.18);
+  z-index: 2000;
+}
+
+.profile-dropdown.show {
+  display: block;
+}
+
+/* Dropdown top */
+.profile-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+.profile-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #f0f2f6;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+}
+
+.profile-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #0033a0;
+}
+
+.profile-sub {
+  font-size: 13px;
+  color: #555;
+}
+
+/* Dropdown details */
+.profile-details p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #222;
+}
+
+/* Logout */
+.logout-link {
+  display: block;
+  text-align: center;
+  padding: 10px;
+
+  background: #0033a0;
+  border-radius: 10px;
+
+  font-weight: 700;
+  text-decoration: none;
+  color: white;
+}
+
+.logout-link:hover {
+  background: #00257a;
+}
+
+/* =========================
+   DARK MODE TOGGLE BUTTON
+========================= */
+.dark-toggle-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.dark-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* =========================
+   DARK MODE THEME
+========================= */
+body.dark-mode {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* Cards */
+body.dark-mode .card {
+  background: #111827;
+  color: #e5e7eb;
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .card h2 {
+  color: #93c5fd;
+}
+
+/* Tables */
+body.dark-mode table {
+  background: #111827;
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode tr:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Inputs */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background: #0b1220;
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Small text */
+body.dark-mode .small-text {
+  color: #b6c0d1;
+}
+
+/* Profile dropdown */
+body.dark-mode .profile-dropdown {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .profile-details p {
+  color: #e5e7eb;
+}
+
+body.dark-mode .profile-sub {
+  color: #b6c0d1;
+}
+
+body.dark-mode .profile-avatar {
+  background: rgba(255, 255, 255, 0.08);
 }
 

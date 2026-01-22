@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="auth-check.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Infosys Portal - Resources</title>
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
+
 <body>
 
 <header>
@@ -19,22 +21,87 @@
     <ul>
       <li><a href="index.html">Home</a></li>
       <li><a class="active" href="resources.html">Resources</a></li>
+      <li><a href="knowledge.html">Knowledge Base</a></li>
       <li><a href="reports.html">Reports</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
+
+  <!-- ✅ Profile Dropdown Right Side -->
+<div class="nav-right">
+
+  <!-- ✅ Dark Mode Button -->
+  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+
+  <div class="profile-menu">
+    <button class="profile-btn" onclick="toggleProfileDropdown()">
+      <span class="profile-icon">👤</span>
+      <span class="profile-text">Profile</span>
+      <span class="profile-arrow">▾</span>
+    </button>
+
+    <div id="profileDropdown" class="profile-dropdown">
+      <div class="profile-top">
+        <div class="profile-avatar">👤</div>
+        <div>
+          <div class="profile-name" id="pName">-</div>
+          <div class="profile-sub" id="pEmpId">-</div>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <p><b>Team:</b> <span id="pTeam">-</span></p>
+        <p><b>Role:</b> <span id="pRole">-</span></p>
+      </div>
+
+      <hr />
+
+      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
+    </div>
+  </div>
+</div>
 </header>
 
 <div class="container">
 
   <div class="card">
     <h2>Resources</h2>
-    <p class="small-text">Search and download internal documents safely.</p>
+    <p class="small-text">Search, view, and download internal documents safely.</p>
 
-    <div class="search-box">
-      <input id="searchInput" type="text" placeholder="Search files (PDF, Excel, PPT)...">
+    <!-- ✅ Upload Section (Only for uploader/admin) -->
+    <div id="uploadBox" style="margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+      <input type="file" id="uploadFileInput" />
+
+      <button class="btn" onclick="uploadFile()">
+        Upload File
+      </button>
+
+      <span id="uploadMsg" style="font-size: 14px;"></span>
+
+      <p class="small-text" style="margin:0; width:100%;">
+        ✅ Max size: <b>30MB</b> | ✅ Duplicate filename not allowed
+      </p>
     </div>
 
+    <!-- ✅ Search + Type Filter -->
+    <div class="search-box" style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input id="searchInput" type="text" placeholder="Search files (PDF, Excel, PPT, Images)..." />
+
+      <select id="typeFilter" style="padding:10px;">
+        <option value="all">All Types</option>
+        <option value="pdf">PDF</option>
+        <option value="xlsx">Excel (xlsx)</option>
+        <option value="xls">Excel (xls)</option>
+        <option value="pptx">PPT (pptx)</option>
+        <option value="ppt">PPT (ppt)</option>
+        <option value="docx">DOC (docx)</option>
+        <option value="jpg">JPG</option>
+        <option value="jpeg">JPEG</option>
+        <option value="png">PNG</option>
+      </select>
+    </div>
+
+    <!-- ✅ Files Table -->
     <table>
       <thead>
         <tr>
@@ -44,10 +111,16 @@
           <th>Action</th>
         </tr>
       </thead>
+
       <tbody id="filesTableBody">
         <tr><td colspan="4">Loading...</td></tr>
       </tbody>
     </table>
+
+    <p class="small-text" style="margin-top:12px;">
+      ✅ View opens file in browser | ✅ Download is tracked (logs maintained)
+    </p>
+
   </div>
 
 </div>

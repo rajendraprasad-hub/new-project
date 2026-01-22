@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="auth-check.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Infosys Portal - Home</title>
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
+
 <body>
 
 <header>
@@ -19,10 +21,45 @@
     <ul>
       <li><a class="active" href="index.html">Home</a></li>
       <li><a href="resources.html">Resources</a></li>
+      <li><a href="knowledge.html">Knowledge Base</a></li>
       <li><a href="reports.html">Reports</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
+
+  <!-- ✅ Profile Dropdown Right Side -->
+<div class="nav-right">
+
+  <!-- ✅ Dark Mode Button -->
+  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+
+  <div class="profile-menu">
+    <button class="profile-btn" onclick="toggleProfileDropdown()">
+      <span class="profile-icon">👤</span>
+      <span class="profile-text">Profile</span>
+      <span class="profile-arrow">▾</span>
+    </button>
+
+    <div id="profileDropdown" class="profile-dropdown">
+      <div class="profile-top">
+        <div class="profile-avatar">👤</div>
+        <div>
+          <div class="profile-name" id="pName">-</div>
+          <div class="profile-sub" id="pEmpId">-</div>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <p><b>Team:</b> <span id="pTeam">-</span></p>
+        <p><b>Role:</b> <span id="pRole">-</span></p>
+      </div>
+
+      <hr />
+
+      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
+    </div>
+  </div>
+</div>
 </header>
 
 <div class="container">
@@ -30,17 +67,41 @@
   <div class="card">
     <h2>Welcome to Infosys Team Resource Portal</h2>
     <p>
-      This portal provides secure access to project documents, reports, and important internal links.
-      It is built using DevOps practices: GitHub, Docker, Jenkins, Kubernetes, and Monitoring.
+      This portal provides secure access to project documents, announcements and Knowledge Base process updates.
+      It supports Team-wise filtering with Roles (user/uploader/viewerAll/admin).
     </p>
     <p class="small-text"><b>Note:</b> Internal use only.</p>
   </div>
 
+  <!-- ✅ Announcements -->
   <div class="card">
-    <h2>📌 Recently Added Files</h2>
-    <div id="recentFilesBox">
-      <p class="small-text">Loading recent files...</p>
+    <h2>Announcements</h2>
+    <p class="small-text">Latest important updates from Admin (team-wise filtered).</p>
+
+    <div id="announcementBox">
+      <p>Loading announcements...</p>
     </div>
+  </div>
+
+  <!-- ✅ Recent Files -->
+  <div class="card">
+    <h2>Recent Files</h2>
+    <p class="small-text">Latest 4 uploaded documents.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="recentFilesBox">
+        <tr><td colspan="4">Loading...</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="card">

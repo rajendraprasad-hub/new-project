@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="auth-check.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knowledge Base</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+
+<header>
+  <div class="logo-box">
+    <img src="assets/infosys-logo.svg" alt="Infosys Logo">
+    <div class="portal-title">Internal Web Portal</div>
+  </div>
+
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="resources.html">Resources</a></li>
+      <li><a class="active" href="knowledge.html">Knowledge Base</a></li>
+      <li><a href="reports.html">Reports</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ✅ Profile Dropdown Right Side -->
+<div class="nav-right">
+
+  <!-- ✅ Dark Mode Button -->
+  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+
+  <div class="profile-menu">
+    <button class="profile-btn" onclick="toggleProfileDropdown()">
+      <span class="profile-icon">👤</span>
+      <span class="profile-text">Profile</span>
+      <span class="profile-arrow">▾</span>
+    </button>
+
+    <div id="profileDropdown" class="profile-dropdown">
+      <div class="profile-top">
+        <div class="profile-avatar">👤</div>
+        <div>
+          <div class="profile-name" id="pName">-</div>
+          <div class="profile-sub" id="pEmpId">-</div>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <p><b>Team:</b> <span id="pTeam">-</span></p>
+        <p><b>Role:</b> <span id="pRole">-</span></p>
+      </div>
+
+      <hr />
+
+      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
+    </div>
+  </div>
+</div>
+
+</header>
+
+<div class="container">
+
+  <!-- ✅ Add Knowledge Update -->
+  <div class="card">
+    <h2>Knowledge Base Updates</h2>
+    <p class="small-text">
+      Add country/carrier/project/process updates (copy-paste steps). Team-wise visibility enabled.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:15px;">
+      <input id="kbCountry" type="text" placeholder="Country *" style="padding:10px;">
+      <input id="kbCarrier" type="text" placeholder="Carrier *" style="padding:10px;">
+      <input id="kbProject" type="text" placeholder="Project *" style="padding:10px;">
+      <input id="kbProcess" type="text" placeholder="Process *" style="padding:10px;">
+      <input id="kbTitle" type="text" placeholder="Update Title *" style="padding:10px; grid-column:span 2;">
+    </div>
+
+    <textarea id="kbDetails" rows="5" placeholder="Update Details / Steps * (copy-paste process update here)"
+      style="padding:10px; width:100%; margin-top:12px;"></textarea>
+
+    <!-- ✅ Attachment Upload (Optional) -->
+    <div style="margin-top:12px;">
+      <label style="font-size:14px;"><b>Attach File (Optional)</b></label><br>
+      <input id="kbFile" type="file" style="margin-top:6px;">
+      <p class="small-text" style="margin-top:6px;">
+        ✅ Supported: PDF / Excel / PPT / Images | ✅ Max: 30MB
+      </p>
+    </div>
+
+    <!-- ✅ Future-ready optional fields -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px;">
+      <select id="kbPriority" style="padding:10px;">
+        <option value="Low">Priority: Low</option>
+        <option value="Medium">Priority: Medium</option>
+        <option value="High">Priority: High</option>
+      </select>
+
+      <select id="kbStatus" style="padding:10px;">
+        <option value="New">Status: New</option>
+        <option value="In Progress">Status: In Progress</option>
+        <option value="Completed">Status: Completed</option>
+      </select>
+
+      <input id="kbTicketId" type="text" placeholder="Ticket ID (optional)" style="padding:10px;">
+      <input id="kbRefLink" type="text" placeholder="Reference Link (optional)" style="padding:10px;">
+    </div>
+
+    <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn" onclick="addKnowledgeUpdate()">Save Update</button>
+      <button class="btn btn-secondary" onclick="loadKnowledgeUpdates()">Refresh</button>
+    </div>
+
+    <p id="kbMsg" style="margin-top:10px;"></p>
+  </div>
+
+  <!-- ✅ Search & List Updates -->
+  <div class="card">
+    <h2>Recent Knowledge Updates</h2>
+
+    <div class="search-box">
+      <input id="kbSearch" type="text" placeholder="Search updates (country, carrier, project, process, title)...">
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Country</th>
+          <th>Carrier</th>
+          <th>Project</th>
+          <th>Process</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Title</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody id="kbTableBody">
+        <tr><td colspan="9">Loading...</td></tr>
+      </tbody>
+    </table>
+
+    <p class="small-text" style="margin-top:10px;">
+      ✅ If an update has an attachment, it will show an <b>Attachment</b> button in Action column.
+    </p>
+
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Infosys BPM | Internal Use Only
+</footer>
+
+</body>
+</html>
+
