@@ -1,14 +1,13 @@
-# ✅ Infosys Internal KST Web Portal
+# ✅ Infosys Internal Web Portal
 **Secure Internal Portal with Authentication, Teams, RBAC, Resources Upload, Knowledge Base Updates + Attachments, Announcements, Reports & Tracking**
 
-This portal is built to meet the **KST (Knowledge Support & Tracking)** requirement and is **not a duplicate of DCM**.
 
 ✅ **DCM Library** = Document storage only  
 ✅ **KST Portal** = Country/Carrier/Project/Process updates + searchable team-wise knowledge tracking + audit usage reporting
 
 ---
 
-# ✅ Why this Portal? (Manager Criteria Match)
+# ✅ Why this Portal? 
 KST portal is required because there are chances we miss important updates when:
 1) People leave the organization  
 2) People change the team  
