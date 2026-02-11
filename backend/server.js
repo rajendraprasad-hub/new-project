@@ -1,9 +1,18 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const https = require("https");
+const http = require("http");
 const session = require("express-session");
 const multer = require("multer");
 const bcrypt = require("bcryptjs");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const csurf = require("csurf");
+const cookieParser = require("cookie-parser");
+const { body, validationResult } = require("express-validator");
+const sanitizeHtml = require("sanitize-html");
+const dotenv = require("dotenv");
 const { Parser } = require("json2csv");
 
 const authMiddleware = require("./auth");
@@ -12,9 +21,18 @@ const adminOnly = require("./adminOnly");
 const logActivity = require("./logger");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Load env
+dotenv.config();
 
 app.use(express.json());
+
+// Security headers
+app.use(helmet());
+
+// Parse cookies (required for csurf cookie mode)
+app.use(cookieParser());
 
 // ✅ Allowed teams list (your teams)
 const ALLOWED_TEAMS = ["MFPM", "COE", "CMO", "CIV", "GCM"];
@@ -22,14 +40,58 @@ const ALLOWED_TEAMS = ["MFPM", "COE", "CMO", "CIV", "GCM"];
 // ✅ Session setup (with timeout)
 app.use(
   session({
-    secret: "infosys-portal-secret",
+    secret: process.env.SESSION_SECRET || "infosys-portal-secret",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 60 * 60 * 1000 // ✅ 1 hour session
+      maxAge: 60 * 60 * 1000, // ✅ 1 hour session
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production"
     }
   })
 );
+
+// Rate limiters
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Content-Security-Policy (adjust sources as needed)
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"] ,
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"] ,
+      connectSrc: ["'self'"],
+      frameAncestors: ["'none'"],
+      objectSrc: ["'none'"]
+    }
+  })
+);
+
+// CSRF protection (use cookie mode for SPA)
+app.use(csurf({ cookie: true }));
+
+// Expose CSRF token for frontend to fetch
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+// Apply admin rate limiter to admin routes
+app.use('/api/admin', adminLimiter);
 
 // Serve frontend from public
 app.use(express.static(path.join(__dirname, "../public")));
@@ -58,6 +120,10 @@ ensureFile(announcementsPath, []);
 ensureFile(metadataPath, {});
 ensureFile(loginAttemptsPath, {});
 ensureFile(knowledgePath, []);
+
+// ✅ Knowledge versions storage (for version-history UI)
+const knowledgeVersionsPath = path.join(__dirname, "knowledgeVersions.json");
+ensureFile(knowledgeVersionsPath, {});
 
 // ✅ JSON Helpers
 function readJSON(filePath, defaultVal) {
@@ -125,7 +191,14 @@ function clearFail(empId) {
 // ================================
 
 // ✅ API: Login (LOCK CHECK + bcrypt + mustChangePassword + TEAM + ROLE)
-app.post("/api/login", (req, res) => {
+app.post("/api/login", loginLimiter, [
+  body("empId").trim().notEmpty(),
+  body("password").notEmpty()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
   let { empId, password } = req.body;
 
   empId = String(empId || "").trim();
@@ -277,10 +350,27 @@ const storage = multer.diskStorage({
   }
 });
 
+const allowedExts = [
+  ".pdf",
+  ".xlsx",
+  ".xls",
+  ".pptx",
+  ".ppt",
+  ".docx",
+  ".jpg",
+  ".jpeg",
+  ".png"
+];
+
 const upload = multer({
   storage,
   limits: {
     fileSize: 30 * 1024 * 1024 // ✅ 30MB
+  },
+  fileFilter: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!allowedExts.includes(ext)) return cb(new Error("INVALID_FILE_TYPE"));
+    cb(null, true);
   }
 });
 
@@ -416,6 +506,11 @@ const kbUpload = multer({
   storage: kbStorage,
   limits: {
     fileSize: 30 * 1024 * 1024 // ✅ 30MB
+  },
+  fileFilter: function (req, file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!allowedExts.includes(ext)) return cb(new Error("INVALID_FILE_TYPE"));
+    cb(null, true);
   }
 });
 
@@ -433,7 +528,7 @@ app.post("/api/knowledge", authMiddleware, (req, res) => {
       return res.status(500).json({ message: "Attachment upload failed." });
     }
 
-    const {
+    let {
       country,
       carrier,
       project,
@@ -446,9 +541,22 @@ app.post("/api/knowledge", authMiddleware, (req, res) => {
       refLink
     } = req.body;
 
+    country = String(country || "").trim();
+    carrier = String(carrier || "").trim();
+    project = String(project || "").trim();
+    process = String(process || "").trim();
+    title = String(title || "").trim();
+    details = String(details || "").trim();
+
     if (!country || !carrier || !project || !process || !title || !details) {
       return res.status(400).json({ message: "Please fill all required fields (*)" });
     }
+
+    // sanitize free-text fields
+    title = sanitizeHtml(title, { allowedTags: [], allowedAttributes: {} });
+    details = sanitizeHtml(details, { allowedTags: [], allowedAttributes: {} });
+    ticketId = sanitizeHtml(String(ticketId || ""), { allowedTags: [], allowedAttributes: {} });
+    refLink = sanitizeHtml(String(refLink || ""), { allowedTags: [], allowedAttributes: {} });
 
     const list = readJSON(knowledgePath, []);
 
@@ -486,6 +594,25 @@ app.post("/api/knowledge", authMiddleware, (req, res) => {
     list.unshift(item);
     writeJSON(knowledgePath, list);
 
+    // Record initial version for this knowledge item
+    try {
+      const versions = readJSON(knowledgeVersionsPath, {});
+      versions[item.id] = versions[item.id] || [];
+      versions[item.id].unshift({
+        versionId: Date.now().toString(),
+        createdAt: item.createdAt,
+        createdBy: item.createdBy,
+        createdByName: item.createdByName,
+        title: item.title,
+        details: item.details,
+        attachment: item.attachment || null,
+        notes: item.details
+      });
+      writeJSON(knowledgeVersionsPath, versions);
+    } catch (err) {
+      console.log('❌ Failed to record KB version:', err.message);
+    }
+
     logActivity({
       type: "KNOWLEDGE_ADD",
       empId: req.session.user.empId,
@@ -507,6 +634,20 @@ app.get("/api/knowledge", authMiddleware, (req, res) => {
   const filtered = canViewAll ? list : list.filter((x) => x.team === team);
 
   return res.json(filtered);
+});
+
+// ✅ Get version history for a knowledge item (if available)
+app.get('/api/knowledge/:id/versions', authMiddleware, (req, res) => {
+  const id = req.params.id;
+  if (!id) return res.status(400).json({ message: 'ID required' });
+
+  try {
+    const versions = readJSON(knowledgeVersionsPath, {});
+    const list = versions[id] || [];
+    return res.json(list);
+  } catch (err) {
+    return res.status(500).json({ message: 'Error reading versions' });
+  }
 });
 
 // ✅ Admin delete knowledge update
@@ -631,6 +772,88 @@ app.post("/api/admin/metadata", authMiddleware, adminOnly, (req, res) => {
 });
 
 // ================================
+// ✅ Bulk Delete Files (admin)
+// ================================
+app.post("/api/admin/bulk-delete-files", authMiddleware, adminOnly, (req, res) => {
+  const { files } = req.body;
+  if (!Array.isArray(files) || files.length === 0) {
+    return res.status(400).json({ message: "No files specified" });
+  }
+
+  const results = { deleted: [], failed: [] };
+  
+  files.forEach((filePath) => {
+    try {
+      const src = path.join(__dirname, "../docs", filePath);
+      if (!fs.existsSync(src)) {
+        results.failed.push({ file: filePath, reason: "Not found" });
+        return;
+      }
+
+      const base = path.basename(filePath);
+      const dest = path.join(trashDir, base);
+      fs.renameSync(src, dest);
+
+      const meta = readJSON(metadataPath, {});
+      meta[`trash/${base}`] = meta[filePath] || { category: "General", tags: [], team: "ALL" };
+      delete meta[filePath];
+      writeJSON(metadataPath, meta);
+
+      logActivity({
+        type: "DELETE_TO_TRASH",
+        empId: req.session.user.empId,
+        name: req.session.user.name,
+        file: filePath
+      });
+
+      results.deleted.push(filePath);
+    } catch (err) {
+      results.failed.push({ file: filePath, reason: err.message });
+    }
+  });
+
+  return res.json({ message: "Bulk delete completed", results });
+});
+
+// ================================
+// ✅ Bulk Delete Knowledge Items (admin)
+// ================================
+app.post("/api/admin/bulk-delete-knowledge", authMiddleware, adminOnly, (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ message: "No IDs specified" });
+  }
+
+  const results = { deleted: [], failed: [] };
+  const list = readJSON(knowledgePath, []);
+
+  ids.forEach((id) => {
+    try {
+      const idx = list.findIndex((x) => x.id === id);
+      if (idx === -1) {
+        results.failed.push({ id, reason: "Not found" });
+        return;
+      }
+
+      const removed = list.splice(idx, 1)[0];
+      logActivity({
+        type: "KNOWLEDGE_DELETE",
+        empId: req.session.user.empId,
+        name: req.session.user.name,
+        file: removed.title
+      });
+
+      results.deleted.push(id);
+    } catch (err) {
+      results.failed.push({ id, reason: err.message });
+    }
+  });
+
+  writeJSON(knowledgePath, list);
+  return res.json({ message: "Bulk delete completed", results });
+});
+
+// ================================
 // ✅ Announcements (TEAM FILTERING)
 // ================================
 app.get("/api/announcements", authMiddleware, (req, res) => {
@@ -650,9 +873,16 @@ app.get("/api/announcements", authMiddleware, (req, res) => {
 });
 
 app.post("/api/admin/announcements", authMiddleware, adminOnly, (req, res) => {
-  const { title, message, team } = req.body;
+  let { title, message, team } = req.body;
+
+  title = String(title || "").trim();
+  message = String(message || "").trim();
 
   if (!title || !message) return res.status(400).json({ message: "Title and message required" });
+
+  // sanitize
+  title = sanitizeHtml(title, { allowedTags: [], allowedAttributes: {} });
+  message = sanitizeHtml(message, { allowedTags: [], allowedAttributes: {} });
 
   const teamValue = team && team !== "" ? team : "ALL";
   if (teamValue !== "ALL" && !ALLOWED_TEAMS.includes(teamValue)) {
@@ -676,12 +906,16 @@ app.post("/api/admin/announcements", authMiddleware, adminOnly, (req, res) => {
 // ✅ CONTACT API
 // ================================
 app.post("/api/contact", authMiddleware, (req, res) => {
-  const { name, email, message } = req.body;
+  let { name, email, message } = req.body;
+  name = sanitizeHtml(String(name || "").trim(), { allowedTags: [], allowedAttributes: {} });
+  email = String(email || "").trim();
+  message = sanitizeHtml(String(message || "").trim(), { allowedTags: [], allowedAttributes: {} });
 
-  console.log("✅ Contact Form Received:");
-  console.log("Name:", name);
-  console.log("Email:", email);
-  console.log("Message:", message);
+  // Minimal validation
+  if (!name || !email || !message) return res.status(400).json({ message: "All fields required" });
+
+  // Log only metadata
+  console.log("✅ Contact Form Received:", { name, email });
 
   res.status(200).json({ status: "Message received successfully" });
 });
@@ -723,7 +957,39 @@ app.get("/api/admin/export", authMiddleware, adminOnly, (req, res) => {
   return res.send(csv);
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Portal running at: http://localhost:${PORT}`);
+// ================================
+// ✅ PRODUCTION HTTPS SUPPORT
+// ================================
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+const useHttps = process.env.NODE_ENV === 'production' && process.env.HTTPS_ENABLED === 'true';
+
+if (useHttps && process.env.HTTPS_KEY && process.env.HTTPS_CERT) {
+  try {
+    const sslOptions = {
+      key: fs.readFileSync(process.env.HTTPS_KEY),
+      cert: fs.readFileSync(process.env.HTTPS_CERT)
+    };
+    https.createServer(sslOptions, app).listen(PORT, () => {
+      console.log(`✅ Portal running at: https://localhost:${PORT}`);
+      console.log(`🔒 HTTPS enabled (production mode)`);
+    });
+  } catch (err) {
+    console.error('❌ HTTPS setup failed:', err.message);
+    console.log('Falling back to HTTP...');
+    http.createServer(app).listen(PORT, () => {
+      console.log(`✅ Portal running at: http://localhost:${PORT}`);
+    });
+  }
+} else {
+  http.createServer(app).listen(PORT, () => {
+    console.log(`✅ Portal running at: http://localhost:${PORT}`);
+    if (process.env.NODE_ENV === 'production') {
+      console.log(`⚠️  WARNING: Running in production without HTTPS!`);
+      console.log(`   To enable HTTPS: Set HTTPS_ENABLED=true and provide HTTPS_KEY + HTTPS_CERT in .env`);
+    }
+  });
+}
 

@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="auth-check.js"></script>
+  <script src="auth-check.js" defer></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Admin reports and analytics for Infosys Internal Portal">
   <title>Infosys Portal - Reports</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="notifications.js" defer></script>
   <script src="script.js" defer></script>
 </head>
-
 <body>
 
 <header>
@@ -28,65 +29,85 @@
   </nav>
 
   <!-- ✅ Profile Dropdown Right Side -->
-<div class="nav-right">
+  <div class="nav-right">
+    <!-- ✅ Dark Mode Button -->
+    <button id="darkModeBtn" class="dark-toggle-btn" title="Toggle Dark Mode">🌙</button>
 
-  <!-- ✅ Dark Mode Button -->
-  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <div class="profile-menu">
+      <button id="profileBtn" class="profile-btn">
+        <span class="profile-icon">👤</span>
+        <span class="profile-text">Profile</span>
+        <span class="profile-arrow">▾</span>
+      </button>
 
-  <div class="profile-menu">
-    <button class="profile-btn" onclick="toggleProfileDropdown()">
-      <span class="profile-icon">👤</span>
-      <span class="profile-text">Profile</span>
-      <span class="profile-arrow">▾</span>
-    </button>
-
-    <div id="profileDropdown" class="profile-dropdown">
-      <div class="profile-top">
-        <div class="profile-avatar">👤</div>
-        <div>
-          <div class="profile-name" id="pName">-</div>
-          <div class="profile-sub" id="pEmpId">-</div>
+      <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-top">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name" id="pName">-</div>
+            <div class="profile-sub" id="pEmpId">-</div>
+          </div>
         </div>
+
+        <div class="profile-details">
+          <p><b>Team:</b> <span id="pTeam">-</span></p>
+          <p><b>Role:</b> <span id="pRole">-</span></p>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0;" />
+
+        <a href="#" id="logoutLink" class="logout-link">Logout</a>
       </div>
-
-      <div class="profile-details">
-        <p><b>Team:</b> <span id="pTeam">-</span></p>
-        <p><b>Role:</b> <span id="pRole">-</span></p>
-      </div>
-
-      <hr />
-
-      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
     </div>
   </div>
-</div>
+
+  <!-- Mobile Menu Button -->
+  <button id="hamburgerBtn" class="hamburger" title="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </header>
+
+<nav id="mainNav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="knowledge.html">Knowledge Base</a></li>
+    <li><a class="active" href="reports.html">Reports</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</nav>
 
 <div class="container">
 
   <!-- ✅ ADMIN Stats -->
-  <div class="card">
-    <h2>Admin Dashboard</h2>
-    <p class="small-text">Only Admin users can view portal usage analytics.</p>
+  <div class="card slide-up">
+    <h2>📊 Admin Dashboard</h2>
+    <p class="small-text">Portal usage analytics and system metrics (Admin only).</p>
 
     <div id="statsBox">
       <p>Loading today stats...</p>
     </div>
 
     <div style="margin-top:12px;">
-      <button class="btn" onclick="exportCSV()">Export Logs (CSV)</button>
+      <button id="exportCsvBtn" class="btn">📥 Export Logs (CSV)</button>
     </div>
   </div>
 
   <!-- ✅ Admin Announcement Post -->
-  <div class="card">
-    <h2>Post Announcement (Admin)</h2>
+  <div class="card slide-up">
+    <h2>📢 Post Announcement (Admin)</h2>
     <p class="small-text">Announcements can be posted for ALL teams or a specific team.</p>
 
-    <input id="announceTitle" type="text" placeholder="Announcement Title" style="width:100%; padding:10px; margin:8px 0;">
-    <textarea id="announceMessage" rows="4" placeholder="Announcement Message" style="width:100%; padding:10px; margin:8px 0;"></textarea>
+    <label for="announceTitle" style="font-weight: 600; color: var(--text-primary); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Announcement Title *</label>
+    <input id="announceTitle" type="text" placeholder="Announcement Title" style="width:100%; padding:12px 16px; margin:8px 0; border: 2px solid var(--border); border-radius: 12px;" required>
+    
+    <label for="announceMessage" style="font-weight: 600; color: var(--text-primary); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Message *</label>
+    <textarea id="announceMessage" rows="4" placeholder="Announcement Message" style="width:100%; padding:12px 16px; margin:8px 0; border: 2px solid var(--border); border-radius: 12px; font-family: inherit;" required></textarea>
 
-    <select id="announceTeam" style="width:100%; padding:10px; margin:8px 0;">
+    <label for="announceTeam" style="font-weight: 600; color: var(--text-primary); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Team</label>
+    <select id="announceTeam" style="width:100%; padding:12px 16px; margin:8px 0; border: 2px solid var(--border); border-radius: 12px; background: var(--bg-card); color: var(--text-primary); cursor: pointer;">
       <option value="ALL">ALL Teams</option>
       <option value="MFPM">MFPM</option>
       <option value="COE">COE</option>
@@ -95,15 +116,15 @@
       <option value="GCM">GCM</option>
     </select>
 
-    <button class="btn" onclick="postAnnouncement()">Post Announcement</button>
+    <button id="postAnnouncementBtn" class="btn" style="margin-top:16px;">📤 Post Announcement</button>
 
     <p id="announceMsg" style="margin-top:10px;"></p>
   </div>
 
   <!-- ✅ Recent Activity Logs -->
-  <div class="card">
-    <h2>Recent Activity (Admin)</h2>
-    <p class="small-text">Latest 20 user activities (Login / Upload / Download / Password change).</p>
+  <div class="card slide-up">
+    <h2>📈 Recent Activity (Admin)</h2>
+    <p class="small-text">Latest user activities: Login / Upload / Download / Password changes.</p>
 
     <table>
       <thead>
@@ -117,7 +138,7 @@
       </thead>
 
       <tbody id="activityTableBody">
-        <tr><td colspan="5">Loading activity...</td></tr>
+        <tr><td colspan="5" style="text-align: center;">Loading activity...</td></tr>
       </tbody>
     </table>
   </div>

@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="auth-check.js"></script>
+  <script src="auth-check.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact support for Infosys Internal Portal">
   <title>Infosys Portal - Contact</title>
   <link rel="stylesheet" href="style.css">
+  <script src="notifications.js" defer></script>
   <script src="script.js" defer></script>
 </head>
-
 <body>
 
 <header>
@@ -28,59 +29,80 @@
   </nav>
 
   <!-- ✅ Profile Dropdown Right Side -->
-<div class="nav-right">
+  <div class="nav-right">
+    <!-- ✅ Dark Mode Button -->
+    <button id="darkModeBtn" class="dark-toggle-btn" title="Toggle Dark Mode">🌙</button>
 
-  <!-- ✅ Dark Mode Button -->
-  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <div class="profile-menu">
+      <button id="profileBtn" class="profile-btn">
+        <span class="profile-icon">👤</span>
+        <span class="profile-text">Profile</span>
+        <span class="profile-arrow">▾</span>
+      </button>
 
-  <div class="profile-menu">
-    <button class="profile-btn" onclick="toggleProfileDropdown()">
-      <span class="profile-icon">👤</span>
-      <span class="profile-text">Profile</span>
-      <span class="profile-arrow">▾</span>
-    </button>
-
-    <div id="profileDropdown" class="profile-dropdown">
-      <div class="profile-top">
-        <div class="profile-avatar">👤</div>
-        <div>
-          <div class="profile-name" id="pName">-</div>
-          <div class="profile-sub" id="pEmpId">-</div>
+      <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-top">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name" id="pName">-</div>
+            <div class="profile-sub" id="pEmpId">-</div>
+          </div>
         </div>
+
+        <div class="profile-details">
+          <p><b>Team:</b> <span id="pTeam">-</span></p>
+          <p><b>Role:</b> <span id="pRole">-</span></p>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0;" />
+
+        <a href="#" id="logoutLink" class="logout-link">Logout</a>
       </div>
-
-      <div class="profile-details">
-        <p><b>Team:</b> <span id="pTeam">-</span></p>
-        <p><b>Role:</b> <span id="pRole">-</span></p>
-      </div>
-
-      <hr />
-
-      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
     </div>
   </div>
-</div>
 
+  <!-- Mobile Menu Button -->
+  <button id="hamburgerBtn" class="hamburger" title="Toggle menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </header>
+
+<nav id="mainNav">
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="resources.html">Resources</a></li>
+    <li><a href="knowledge.html">Knowledge Base</a></li>
+    <li><a href="reports.html">Reports</a></li>
+    <li><a class="active" href="contact.html">Contact</a></li>
+  </ul>
+</nav>
 
 <div class="container">
 
-  <div class="card">
-    <h2>Contact Details</h2>
+  <div class="card slide-up">
+    <h2>📞 Contact Support</h2>
     <p><b>Rajendra Prasad</b></p>
     <p>Process Specialist – MFPM Team (Infosys BPM)</p>
     <p>Email: rajendra.prasad@infosys.com</p>
-    <p class="small-text">Use the form below for queries / support request.</p>
+    <p class="small-text">Use the form below for queries or support requests.</p>
   </div>
 
-  <div class="card">
-    <h2>Contact Form</h2>
+  <div class="card slide-up">
+    <h2>📧 Send Us a Message</h2>
 
     <form id="contactForm">
-      <input type="text" name="name" placeholder="Your Name" required>
-      <input type="email" name="email" placeholder="Your Email" required>
-      <textarea name="message" placeholder="Your Message..." required></textarea>
-      <button class="btn" type="submit">Send Message</button>
+      <label for="contactName">Your Name *</label>
+      <input id="contactName" type="text" name="name" placeholder="Your Name" required aria-required="true">
+      
+      <label for="contactEmail">Your Email *</label>
+      <input id="contactEmail" type="email" name="email" placeholder="Your Email" required aria-required="true">
+      
+      <label for="contactMessage">Your Message *</label>
+      <textarea id="contactMessage" name="message" placeholder="Your Message..." required aria-required="true"></textarea>
+      
+      <button class="btn" type="submit">📤 Send Message</button>
     </form>
   </div>
 

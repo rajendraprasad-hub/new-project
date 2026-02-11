@@ -3,61 +3,215 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Infosys Internal Portal - Secure employee login">
   <title>Login - Infosys Portal</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .login-header p {
+      color: var(--text-light);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .login-form label {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .login-form input {
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      background: white;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .login-form input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(0, 51, 160, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .login-form input::placeholder {
+      color: var(--text-light);
+    }
+
+    .submit-btn {
+      padding: 14px 24px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0, 51, 160, 0.25);
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 51, 160, 0.35);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .error-message {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 14px;
+      display: none;
+      margin-bottom: 8px;
+      animation: slideDown 0.3s ease;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 20px;
+        padding: 30px;
+      }
+
+      .login-header h1 {
+        font-size: 24px;
+      }
+
+      .submit-btn {
+        font-size: 15px;
+        padding: 12px 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div style="max-width: 400px; margin: 80px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-    <h2 style="text-align:center;">Employee Login</h2>
+  <div class="login-container">
+    <div class="login-header">
+      <h1>🔐 Login</h1>
+      <p>Infosys Internal Portal</p>
+    </div>
 
-    <form id="loginForm">
-      <label>Employee ID</label>
-      <input type="text" id="empId" required style="width:100%; padding:10px; margin:8px 0;" />
+    <div id="errorMsg" class="error-message"></div>
 
-      <label>Password</label>
-      <input type="password" id="password" required style="width:100%; padding:10px; margin:8px 0;" />
+    <form id="loginForm" class="login-form">
+      <div class="form-group">
+        <label for="empId">Employee ID</label>
+        <input 
+          type="text" 
+          id="empId" 
+          placeholder="Enter your employee ID"
+          autocomplete="username" 
+          required 
+        />
+      </div>
 
-      <button type="submit" style="width:100%; padding:10px; margin-top:10px;">Login</button>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          placeholder="Enter your password"
+          autocomplete="current-password" 
+          required 
+        />
+      </div>
+
+      <button type="submit" class="submit-btn">Login</button>
     </form>
-
-    <p id="msg" style="color:red; text-align:center; margin-top:10px;"></p>
   </div>
 
+  <script src="script.js" defer></script>
   <script>
-    const loginForm = document.getElementById("loginForm");
-    const msg = document.getElementById("msg");
-
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      msg.textContent = "";
-
-      const empId = document.getElementById("empId").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      try {
-        const res = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ empId, password })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-  if (data.mustChangePassword) {
-    window.location.href = "/change-password.html";
-  } else {
-    window.location.href = "/index.html";
-  }
-}
-         else {
-          msg.textContent = data.message || "Login failed";
-        }
-      } catch (err) {
-        msg.textContent = "Server error. Try again.";
-      }
-    });
+    // Update error message display
+    const originalForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const msg = document.querySelector('#msg');
+    
+    if (msg && msg.textContent) {
+      errorMsg.textContent = msg.textContent;
+      errorMsg.classList.add('show');
+    }
   </script>
-</body>
-</html>
-

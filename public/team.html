@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="auth-check.js" defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Dashboard - Infosys Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="notifications.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="logo-box">
+    <img src="assets/infosys-logo.svg" alt="Infosys Logo">
+    <div class="portal-title">Internal Web Portal</div>
+  </div>
+
+  <nav id="mainNav">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="resources.html">Resources</a></li>
+      <li><a href="knowledge.html">Knowledge Base</a></li>
+      <li><a href="reports.html">Reports</a></li>
+      <li><a href="team.html" class="active">Team</a></li>
+    </ul>
+  </nav>
+
+  <div class="nav-right">
+    <button id="darkModeBtn" class="dark-toggle-btn" title="Toggle Dark Mode">🌙</button>
+    <div class="profile-menu">
+      <button id="profileBtn" class="profile-btn">
+        <span class="profile-icon">👤</span>
+        <span class="profile-text">Profile</span>
+        <span class="profile-arrow">▾</span>
+      </button>
+    </div>
+    <button id="hamburgerBtn" class="hamburger" title="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>👥 Team Dashboard</h2>
+    <p class="small-text">Overview of teams and members. (Data from /api/teams)</p>
+
+    <div id="teamsList" style="margin-top:12px; display:grid; gap:12px;"></div>
+  </div>
+</div>
+
+<footer>© 2026 Infosys BPM | Internal Use Only</footer>
+
+<script>
+async function loadTeams() {
+  const container = document.getElementById('teamsList');
+  if (!container) return;
+  container.innerHTML = '<p class="small-text">Loading...</p>';
+  try {
+    const res = await fetch('/api/teams');
+    if (!res.ok) {
+      container.innerHTML = '<p class="small-text">Team API not available. Showing placeholder.</p>';
+      // placeholder
+      const placeholder = document.createElement('div');
+      placeholder.className = 'card';
+      placeholder.style.padding = '12px';
+      placeholder.innerHTML = '<b>MFPM</b><br/>Alice (Lead)<br/>Bob (Member)';
+      container.appendChild(placeholder);
+      return;
+    }
+    const data = await res.json();
+    container.innerHTML = '';
+    (data || []).forEach(team => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.padding = '12px';
+      card.innerHTML = `<h3>${team.name}</h3><p class="small-text">${team.description || ''}</p>`;
+      const list = document.createElement('div');
+      list.style.marginTop = '8px';
+      (team.members || []).forEach(m => {
+        const p = document.createElement('p');
+        p.textContent = `${m.name} — ${m.role || 'Member'}`;
+        list.appendChild(p);
+      });
+      card.appendChild(list);
+      container.appendChild(card);
+    });
+  } catch (err) {
+    container.innerHTML = '<p class="small-text">Error loading teams.</p>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadTeams();
+});
+</script>
+</body>
+</html>

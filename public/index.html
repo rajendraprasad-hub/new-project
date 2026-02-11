@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="auth-check.js"></script>
+  <script src="auth-check.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Infosys Internal Web Portal - Secure access to team resources, announcements, and knowledge base">
   <title>Infosys Portal - Home</title>
   <link rel="stylesheet" href="style.css">
+  <script src="notifications.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 
@@ -17,7 +20,7 @@
     <div class="portal-title">Internal Web Portal</div>
   </div>
 
-  <nav>
+  <nav id="mainNav">
     <ul>
       <li><a class="active" href="index.html">Home</a></li>
       <li><a href="resources.html">Resources</a></li>
@@ -28,64 +31,78 @@
   </nav>
 
   <!-- ✅ Profile Dropdown Right Side -->
-<div class="nav-right">
+  <div class="nav-right">
+    <!-- ✅ Dark Mode Button -->
+    <button id="darkModeBtn" class="dark-toggle-btn" title="Toggle Dark Mode">🌙</button>
 
-  <!-- ✅ Dark Mode Button -->
-  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <div class="profile-menu">
+      <button id="profileBtn" class="profile-btn">
+        <span class="profile-icon">👤</span>
+        <span class="profile-text">Profile</span>
+        <span class="profile-arrow">▾</span>
+      </button>
 
-  <div class="profile-menu">
-    <button class="profile-btn" onclick="toggleProfileDropdown()">
-      <span class="profile-icon">👤</span>
-      <span class="profile-text">Profile</span>
-      <span class="profile-arrow">▾</span>
-    </button>
-
-    <div id="profileDropdown" class="profile-dropdown">
-      <div class="profile-top">
-        <div class="profile-avatar">👤</div>
-        <div>
-          <div class="profile-name" id="pName">-</div>
-          <div class="profile-sub" id="pEmpId">-</div>
+      <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-top">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name" id="pName">-</div>
+            <div class="profile-sub" id="pEmpId">-</div>
+          </div>
         </div>
+
+        <div class="profile-details">
+          <p><b>Team:</b> <span id="pTeam">-</span></p>
+          <p><b>Role:</b> <span id="pRole">-</span></p>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0;" />
+
+        <a href="#" id="logoutLink" class="logout-link">Logout</a>
       </div>
-
-      <div class="profile-details">
-        <p><b>Team:</b> <span id="pTeam">-</span></p>
-        <p><b>Role:</b> <span id="pRole">-</span></p>
-      </div>
-
-      <hr />
-
-      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
     </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="hamburgerBtn" class="hamburger" title="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </div>
-</div>
 </header>
 
 <div class="container">
 
-  <div class="card">
-    <h2>Welcome to Infosys Team Resource Portal</h2>
+  <div class="card welcome-card pulse" id="welcomeCard">
+    <div id="welcomeLottie" class="welcome-lottie" aria-hidden="true"></div>
+    <h2>👋 Welcome, <span class="welcome-username" id="welcomeName">Guest</span>!</h2>
     <p>
       This portal provides secure access to project documents, announcements and Knowledge Base process updates.
       It supports Team-wise filtering with Roles (user/uploader/viewerAll/admin).
     </p>
-    <p class="small-text"><b>Note:</b> Internal use only.</p>
+    <p class="small-text"><b>📋 Note:</b> Internal use only.</p>
   </div>
 
   <!-- ✅ Announcements -->
-  <div class="card">
-    <h2>Announcements</h2>
+  <div class="card slide-up">
+    <h2>📢 Announcements</h2>
     <p class="small-text">Latest important updates from Admin (team-wise filtered).</p>
 
     <div id="announcementBox">
-      <p>Loading announcements...</p>
+      <p style="text-align: center; padding: 20px; color: var(--text-light);">Loading announcements...</p>
     </div>
   </div>
 
+  <!-- Favorites / Quick Access -->
+  <div class="card slide-up" id="favoritesCard">
+    <h2>⭐ Quick Access</h2>
+    <p class="small-text">Your favorited files for quick access.</p>
+    <div id="favoritesList" style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap;"></div>
+  </div>
+
   <!-- ✅ Recent Files -->
-  <div class="card">
-    <h2>Recent Files</h2>
+  <div class="card slide-up">
+    <h2>📁 Recent Files</h2>
     <p class="small-text">Latest 4 uploaded documents.</p>
 
     <table>
@@ -99,16 +116,18 @@
       </thead>
 
       <tbody id="recentFilesBox">
-        <tr><td colspan="4">Loading...</td></tr>
+        <tr><td colspan="4" style="text-align: center; color: var(--text-light);">Loading...</td></tr>
       </tbody>
     </table>
   </div>
 
-  <div class="card">
-    <h2>Contact Summary</h2>
-    <p><b>Rajendra Prasad</b></p>
-    <p>Process Specialist – MFPM Team</p>
-    <p>Email: rajendra.prasad@infosys.com</p>
+  <div class="card slide-up">
+    <h2>👥 Contact Summary</h2>
+    <p style="font-weight: 600; margin-bottom: 4px;">Rajendra Prasad</p>
+    <p style="color: var(--text-secondary);">Process Specialist – MFPM Team</p>
+    <p style="color: var(--text-secondary); margin-top: 8px;">
+      <strong>Email:</strong> <a href="mailto:rajendra.prasad@infosys.com" style="color: var(--primary); text-decoration: none;">rajendra.prasad@infosys.com</a>
+    </p>
   </div>
 
 </div>
@@ -116,6 +135,20 @@
 <footer>
   © 2026 Infosys BPM | Internal Use Only
 </footer>
+
+<script>
+  // Update welcome message with user name
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+      const userNameElement = document.getElementById('welcomeName');
+      const profileName = document.getElementById('pName');
+      
+      if (profileName && profileName.textContent && profileName.textContent !== '-') {
+        userNameElement.textContent = profileName.textContent;
+      }
+    }, 500);
+  });
+</script>
 
 </body>
 </html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="auth-check.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Activity logs and audit trail for Infosys Portal">
+  <title>Activity Dashboard - Infosys Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="notifications.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+
+<header>
+  <div class="logo-box">
+    <img src="assets/infosys-logo.svg" alt="Infosys Logo">
+    <div class="portal-title">Internal Web Portal</div>
+  </div>
+
+  <nav id="mainNav">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="resources.html">Resources</a></li>
+      <li><a href="knowledge.html">Knowledge Base</a></li>
+      <li><a href="reports.html">Reports</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a class="active" href="activity.html">Activity</a></li>
+    </ul>
+  </nav>
+
+  <div class="nav-right">
+    <button id="darkModeBtn" class="dark-toggle-btn" title="Toggle Dark Mode">🌙</button>
+
+    <div class="profile-menu">
+      <button id="profileBtn" class="profile-btn">
+        <span class="profile-icon">👤</span>
+        <span class="profile-text">Profile</span>
+        <span class="profile-arrow">▾</span>
+      </button>
+
+      <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-top">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name" id="pName">-</div>
+            <div class="profile-sub" id="pEmpId">-</div>
+          </div>
+        </div>
+
+        <div class="profile-details">
+          <p><b>Team:</b> <span id="pTeam">-</span></p>
+          <p><b>Role:</b> <span id="pRole">-</span></p>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0;" />
+
+        <a href="#" id="logoutLink" class="logout-link">Logout</a>
+      </div>
+    </div>
+
+    <button id="hamburgerBtn" class="hamburger" title="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Activity Stats -->
+  <div class="card slide-up">
+    <h2>📊 Activity Overview</h2>
+    <p class="small-text">System-wide activity summary and user engagement metrics.</p>
+
+    <div id="statsBox" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px;">
+      <div class="stat-card">
+        <div class="stat-number" id="statLogins">-</div>
+        <div class="stat-label">Logins Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statUploads">-</div>
+        <div class="stat-label">Uploads Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statDownloads">-</div>
+        <div class="stat-label">Downloads Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="statUsers">-</div>
+        <div class="stat-label">Active Users</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Logs -->
+  <div class="card slide-up">
+    <h2>📋 Recent Activity</h2>
+    <p class="small-text">All user actions in the portal (admin view only).</p>
+
+    <div class="search-box" style="margin-bottom: 16px;">
+      <input id="activitySearch" type="text" placeholder="Search by user, action, file..." />
+      <select id="activityFilter" style="padding: 12px 16px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg-card); cursor: pointer;">
+        <option value="all">All Actions</option>
+        <option value="login">Logins</option>
+        <option value="upload">Uploads</option>
+        <option value="download">Downloads</option>
+        <option value="delete">Deletions</option>
+        <option value="logout">Logouts</option>
+      </select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User (Emp ID)</th>
+          <th>Action</th>
+          <th>File/Details</th>
+          <th>IP Address</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="activityTableBody">
+        <tr><td colspan="6" style="text-align: center; padding: 20px;">Loading activity logs...</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top: 16px; display: flex; gap: 12px;">
+      <button id="exportActivityBtn" class="btn">📥 Export CSV</button>
+      <button id="refreshActivityBtn" class="btn btn-secondary">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <!-- Login Timeline -->
+  <div class="card slide-up">
+    <h2>🔐 Login Timeline (Last 7 Days)</h2>
+    <p class="small-text">Track user login patterns and failed attempts.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Employee ID</th>
+          <th>Name</th>
+          <th>Team</th>
+          <th>IP Address</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="loginTableBody">
+        <tr><td colspan="6" style="text-align: center; padding: 20px;">Loading login data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 Infosys BPM | Internal Use Only
+</footer>
+
+<script>
+  // Load activity logs
+  async function loadActivityLogs() {
+    const tableBody = document.getElementById('activityTableBody');
+    const searchInput = document.getElementById('activitySearch');
+    const filterSelect = document.getElementById('activityFilter');
+    if (!tableBody) return;
+
+    try {
+      const res = await fetch('/api/admin/activity');
+      const logs = await res.json();
+
+      if (!res.ok) {
+        tableBody.innerHTML = '<tr><td colspan="6">❌ Admin access required</td></tr>';
+        return;
+      }
+
+      window.__ACTIVITY_LOGS = logs || [];
+
+      function render(data) {
+        tableBody.innerHTML = '';
+        if (!data || data.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="6">No activity logs found.</td></tr>';
+          return;
+        }
+
+        data.slice(0, 100).forEach(log => {
+          const row = document.createElement('tr');
+          const time = new Date(log.time || log.timestamp).toLocaleString();
+          const empInfo = `${log.empId || '-'} (${log.name || '-'})`;
+          const action = log.type || log.action || '-';
+          const file = log.file || '-';
+          const ip = log.ip || '-';
+          const status = log.status || '✅ Success';
+
+          row.innerHTML = `
+            <td>${time}</td>
+            <td>${empInfo}</td>
+            <td>${action}</td>
+            <td>${file}</td>
+            <td>${ip}</td>
+            <td>${status}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      render(window.__ACTIVITY_LOGS);
+
+      // Search functionality
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          const query = searchInput.value.toLowerCase();
+          const filtered = window.__ACTIVITY_LOGS.filter(log => {
+            return (
+              (log.empId || '').toLowerCase().includes(query) ||
+              (log.name || '').toLowerCase().includes(query) ||
+              (log.type || '').toLowerCase().includes(query) ||
+              (log.file || '').toLowerCase().includes(query)
+            );
+          });
+          render(filtered);
+        });
+      }
+
+      // Filter functionality
+      if (filterSelect) {
+        filterSelect.addEventListener('change', () => {
+          const type = filterSelect.value;
+          const filtered = type === 'all' 
+            ? window.__ACTIVITY_LOGS 
+            : window.__ACTIVITY_LOGS.filter(log => (log.type || '').toLowerCase().includes(type));
+          render(filtered);
+        });
+      }
+    } catch (err) {
+      tableBody.innerHTML = '<tr><td colspan="6">❌ Error loading activity logs</td></tr>';
+    }
+  }
+
+  // Load login timeline
+  async function loadLoginTimeline() {
+    const tableBody = document.getElementById('loginTableBody');
+    if (!tableBody) return;
+
+    try {
+      const res = await fetch('/api/admin/activity');
+      const logs = await res.json();
+
+      if (!res.ok) {
+        tableBody.innerHTML = '<tr><td colspan="6">❌ Admin access required</td></tr>';
+        return;
+      }
+
+      const loginLogs = (logs || []).filter(log => (log.type || '').toLowerCase().includes('login'));
+
+      if (!loginLogs || loginLogs.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6">No login records found.</td></tr>';
+        return;
+      }
+
+      loginLogs.slice(0, 50).forEach(log => {
+        const row = document.createElement('tr');
+        const time = new Date(log.time || log.timestamp).toLocaleString();
+        
+        row.innerHTML = `
+          <td>${time}</td>
+          <td>${log.empId || '-'}</td>
+          <td>${log.name || '-'}</td>
+          <td>${log.team || '-'}</td>
+          <td>${log.ip || '-'}</td>
+          <td>✅ Success</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } catch (err) {
+      tableBody.innerHTML = '<tr><td colspan="6">❌ Error loading login timeline</td></tr>';
+    }
+  }
+
+  // Load stats
+  async function loadActivityStats() {
+    try {
+      const res = await fetch('/api/admin/stats');
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById('statLogins').textContent = data.todayLogins || 0;
+        document.getElementById('statUploads').textContent = data.todayUploads || 0;
+        document.getElementById('statDownloads').textContent = data.todayDownloads || 0;
+        document.getElementById('statUsers').textContent = data.activeUsers || 0;
+      }
+    } catch (err) {
+      console.error('Error loading stats:', err);
+    }
+  }
+
+  // Export activity to CSV
+  function exportActivityCSV() {
+    fetch('/api/admin/export').then(res => {
+      if (res.ok) {
+        notify.success('✅ CSV exported successfully!');
+        window.open('/api/admin/export', '_blank');
+      } else {
+        notify.error('❌ Failed to export CSV');
+      }
+    });
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    loadActivityLogs();
+    loadLoginTimeline();
+    loadActivityStats();
+
+    const exportBtn = document.getElementById('exportActivityBtn');
+    if (exportBtn) exportBtn.addEventListener('click', exportActivityCSV);
+
+    const refreshBtn = document.getElementById('refreshActivityBtn');
+    if (refreshBtn) refreshBtn.addEventListener('click', () => {
+      notify.info('🔄 Refreshing activity logs...');
+      loadActivityLogs();
+    });
+  });
+</script>
+
+</body>
+</html>

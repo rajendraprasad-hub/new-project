@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="auth-check.js"></script>
+  <script src="auth-check.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Access and manage internal resources - documents, files, and materials">
   <title>Infosys Portal - Resources</title>
   <link rel="stylesheet" href="style.css">
+  <script src="notifications.js" defer></script>
   <script src="script.js" defer></script>
 </head>
-
 <body>
 
 <header>
@@ -28,66 +29,72 @@
   </nav>
 
   <!-- ✅ Profile Dropdown Right Side -->
-<div class="nav-right">
+  <div class="nav-right">
+    <!-- ✅ Dark Mode Button -->
+    <button id="darkModeBtn" class="dark-toggle-btn" title="Toggle Dark Mode">🌙</button>
 
-  <!-- ✅ Dark Mode Button -->
-  <button class="dark-toggle-btn" onclick="toggleDarkMode()">🌙</button>
+    <div class="profile-menu">
+      <button id="profileBtn" class="profile-btn">
+        <span class="profile-icon">👤</span>
+        <span class="profile-text">Profile</span>
+        <span class="profile-arrow">▾</span>
+      </button>
 
-  <div class="profile-menu">
-    <button class="profile-btn" onclick="toggleProfileDropdown()">
-      <span class="profile-icon">👤</span>
-      <span class="profile-text">Profile</span>
-      <span class="profile-arrow">▾</span>
-    </button>
-
-    <div id="profileDropdown" class="profile-dropdown">
-      <div class="profile-top">
-        <div class="profile-avatar">👤</div>
-        <div>
-          <div class="profile-name" id="pName">-</div>
-          <div class="profile-sub" id="pEmpId">-</div>
+      <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-top">
+          <div class="profile-avatar">👤</div>
+          <div>
+            <div class="profile-name" id="pName">-</div>
+            <div class="profile-sub" id="pEmpId">-</div>
+          </div>
         </div>
+
+        <div class="profile-details">
+          <p><b>Team:</b> <span id="pTeam">-</span></p>
+          <p><b>Role:</b> <span id="pRole">-</span></p>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0;" />
+
+        <a href="#" id="logoutLink" class="logout-link">Logout</a>
       </div>
-
-      <div class="profile-details">
-        <p><b>Team:</b> <span id="pTeam">-</span></p>
-        <p><b>Role:</b> <span id="pRole">-</span></p>
-      </div>
-
-      <hr />
-
-      <a href="#" class="logout-link" onclick="logoutUser()">Logout</a>
     </div>
   </div>
-</div>
 </header>
 
 <div class="container">
 
-  <div class="card">
-    <h2>Resources</h2>
+  <div class="card slide-up">
+    <h2>📁 Resources</h2>
     <p class="small-text">Search, view, and download internal documents safely.</p>
 
     <!-- ✅ Upload Section (Only for uploader/admin) -->
-    <div id="uploadBox" style="margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-      <input type="file" id="uploadFileInput" />
+    <div id="uploadBox" style="margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+      <div id="dropZone" class="drop-zone" role="button" aria-label="Drop files here to upload" tabindex="0">
+        <div>Drag & drop files here or click to browse</div>
+        <div class="drop-hint">Max 30MB • PDF / Excel / PPT / Images</div>
+      </div>
 
-      <button class="btn" onclick="uploadFile()">
-        Upload File
+      <input type="file" id="uploadFileInput" multiple style="padding: 10px 12px; border-radius: 10px; border: 2px solid var(--border); display:none;" aria-hidden="true" />
+
+      <button id="uploadBtn" class="btn">
+        ⬆️ Upload Selected
       </button>
 
       <span id="uploadMsg" style="font-size: 14px;"></span>
 
-      <p class="small-text" style="margin:0; width:100%;">
+      <div id="uploadProgressList" aria-live="polite" style="width:100%; margin-top:8px; display:flex; flex-direction:column; gap:8px;"></div>
+
+      <p class="small-text" style="margin:0; width:100%; margin-top: 8px;">
         ✅ Max size: <b>30MB</b> | ✅ Duplicate filename not allowed
       </p>
     </div>
 
     <!-- ✅ Search + Type Filter -->
-    <div class="search-box" style="display:flex; gap:10px; flex-wrap:wrap;">
-      <input id="searchInput" type="text" placeholder="Search files (PDF, Excel, PPT, Images)..." />
+    <div class="search-box" style="display:flex; gap:12px; flex-wrap:wrap;">
+      <input id="searchInput" type="text" placeholder="Search files (PDF, Excel, PPT, Images)..." style="flex: 1; min-width: 250px;" />
 
-      <select id="typeFilter" style="padding:10px;">
+      <select id="typeFilter" style="padding: 12px 16px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg-card); color: var(--text-primary); cursor: pointer;">
         <option value="all">All Types</option>
         <option value="pdf">PDF</option>
         <option value="xlsx">Excel (xlsx)</option>
@@ -101,23 +108,41 @@
       </select>
     </div>
 
+    <!-- ✅ Bulk Delete Section -->
+    <div id="bulkActions" class="bulk-actions hidden">
+      <span id="selectedCount" style="font-weight: 600; color: var(--text-primary);">0 files selected</span>
+      <button id="bulkDeleteBtn" class="bulk-delete-btn" disabled>🗑️ Delete Selected</button>
+    </div>
+
     <!-- ✅ Files Table -->
     <table>
       <thead>
         <tr>
+          <th style="width:40px; text-align:center;">Fav</th>
+          <th style="width: 40px; text-align: center;">
+            <input type="checkbox" id="selectAllCheckbox" class="file-checkbox" title="Select all files" />
+          </th>
           <th>File Name</th>
           <th>Type</th>
           <th>Description</th>
-          <th>Action</th>
+          <th style="text-align: center; width: 180px;">Action</th>
         </tr>
       </thead>
 
       <tbody id="filesTableBody">
-        <tr><td colspan="4">Loading...</td></tr>
+        <tr><td colspan="6" style="text-align: center; color: var(--text-light); padding: 20px;">Loading...</td></tr>
       </tbody>
     </table>
 
-    <p class="small-text" style="margin-top:12px;">
+    <!-- Preview Modal -->
+    <div id="previewModal" class="preview-modal" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="preview-content">
+        <button class="preview-close" id="previewClose" aria-label="Close preview">✕</button>
+        <div id="previewBody"></div>
+      </div>
+    </div>
+
+    <p class="small-text" style="margin-top: 16px;">
       ✅ View opens file in browser | ✅ Download is tracked (logs maintained)
     </p>
 
@@ -125,10 +150,160 @@
 
 </div>
 
+  <nav id="mainNav">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a class="active" href="resources.html">Resources</a></li>
+      <li><a href="knowledge.html">Knowledge Base</a></li>
+      <li><a href="reports.html">Reports</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
 <footer>
   © 2026 Infosys BPM | Internal Use Only
 </footer>
 
-</body>
-</html>
+    <!-- Mobile Menu Button -->
+    <button id="hamburgerBtn" class="hamburger" title="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+<script>
+  // Bulk delete functionality
+  let selectedFiles = new Set();
 
+  document.getElementById('selectAllCheckbox').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.file-checkbox:not(#selectAllCheckbox)');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+      const row = checkbox.closest('tr');
+      const fileName = row.querySelector('td:nth-child(3)')?.textContent || '';
+      if (this.checked) {
+        selectedFiles.add(fileName);
+      } else {
+        selectedFiles.delete(fileName);
+      }
+    });
+    updateBulkActions();
+  });
+
+  document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('file-checkbox') && e.target.id !== 'selectAllCheckbox') {
+      const fileName = e.target.closest('tr').querySelector('td:nth-child(3)').textContent;
+      if (e.target.checked) {
+        selectedFiles.add(fileName);
+      } else {
+        selectedFiles.delete(fileName);
+      }
+      updateBulkActions();
+    }
+  });
+
+  function updateBulkActions() {
+    const bulkActionsDiv = document.getElementById('bulkActions');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    
+    if (selectedFiles.size > 0) {
+      bulkActionsDiv.classList.remove('hidden');
+      selectedCountSpan.textContent = `${selectedFiles.size} file(s) selected`;
+      bulkDeleteBtn.disabled = false;
+    } else {
+      bulkActionsDiv.classList.add('hidden');
+      bulkDeleteBtn.disabled = true;
+    }
+  }
+
+  document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
+    if (selectedFiles.size === 0) return;
+    
+    const fileList = Array.from(selectedFiles).join(', ');
+    if (confirm(`Delete ${selectedFiles.size} file(s)?\n\n${fileList}`)) {
+      bulkDeleteResources(Array.from(selectedFiles));
+    }
+  });
+
+  // Bulk delete resources via API
+  async function bulkDeleteResources(fileNames) {
+    const filePaths = fileNames.map(name => {
+      // Reconstruct file path (assumes files start with 'uploads/')
+      return name.startsWith('uploads/') ? name : ('uploads/' + name);
+    });
+
+    try {
+      const res = await fetch('/api/admin/bulk-delete-files', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': window.__CSRF_TOKEN || ''
+        },
+        body: JSON.stringify({ files: filePaths })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (typeof notify !== 'undefined') notify.success(`Deleted ${data.results.deleted.length} file(s)`);
+        selectedFiles.clear();
+        updateBulkActions();
+        loadResourcesTable();
+      } else {
+        if (typeof notify !== 'undefined') notify.error(data.message || 'Bulk delete failed');
+      }
+    } catch (err) {
+      if (typeof notify !== 'undefined') notify.error('Bulk delete error: ' + err.message);
+    }
+  }
+
+  // Format action buttons inline
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.addedNodes.length) {
+        formatActionButtons();
+      }
+    });
+  });
+
+  const filesTableBody = document.getElementById('filesTableBody');
+  if (filesTableBody) {
+    observer.observe(filesTableBody, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  function formatActionButtons() {
+    const rows = document.querySelectorAll('#filesTableBody tr');
+    rows.forEach(row => {
+      const lastCell = row.querySelector('td:last-child');
+      if (lastCell && !lastCell.classList.contains('formatted')) {
+        lastCell.classList.add('action-cell', 'formatted');
+        lastCell.style.display = 'flex';
+        lastCell.style.alignItems = 'center';
+        lastCell.style.justifyContent = 'center';
+        lastCell.style.gap = '6px';
+        lastCell.style.flexWrap = 'nowrap';
+        
+        const links = lastCell.querySelectorAll('a');
+        links.forEach(link => {
+          link.classList.add('btn-inline');
+          const text = link.textContent.trim();
+          if (text === 'View') {
+            link.classList.add('btn-view');
+            link.textContent = '👁️ View';
+          } else if (text === 'Download') {
+            link.classList.add('btn-download');
+            link.textContent = '⬇️ Download';
+          } else if (text === 'Delete') {
+            link.classList.add('btn-delete');
+            link.textContent = '🗑️ Delete';
+          }
+        });
+      }
+      
+      // Note: per-row checkboxes and favorite star are rendered by the resources renderer
+    });
+  }
+
+  // Initial format
+  setTimeout(formatActionButtons, 500);
+</script>
