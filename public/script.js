@@ -1,4 +1,136 @@
 // ================================
+// Notification Bell Logic
+// ================================
+async function fetchNotifications() {
+  // Fetch announcements and knowledge updates
+  const [annRes, kbRes] = await Promise.all([
+    fetch('/api/announcements'),
+    fetch('/api/knowledge')
+  ]);
+  const announcements = await annRes.json();
+  const knowledge = await kbRes.json();
+  return { announcements, knowledge };
+}
+
+function getUnreadIds(type) {
+  // type: 'announcements' | 'knowledge'
+  try {
+    const val = sessionStorage.getItem('unread_' + type);
+    return val ? JSON.parse(val) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setUnreadIds(type, ids) {
+  try {
+    sessionStorage.setItem('unread_' + type, JSON.stringify(ids));
+  } catch {}
+}
+
+function markAllRead(type, ids) {
+  setUnreadIds(type, []);
+}
+
+function updateNotificationUI(notifications) {
+  const { announcements, knowledge } = notifications;
+  const bell = document.getElementById('notificationBell');
+  const badge = document.getElementById('notificationBadge');
+  const dropdown = document.getElementById('notificationDropdown');
+  const list = document.getElementById('notificationList');
+  if (!bell || !badge || !dropdown || !list) return;
+
+  // Get IDs for unread tracking
+  const annIds = announcements.map(a => a.id || a.time || a.title);
+  const kbIds = knowledge.map(k => k.id || k.time || k.title);
+  let unreadAnn = getUnreadIds('announcements').filter(id => annIds.includes(id));
+  let unreadKb = getUnreadIds('knowledge').filter(id => kbIds.includes(id));
+
+  // If first load, mark all as unread
+  if (!sessionStorage.getItem('unread_announcements')) setUnreadIds('announcements', annIds);
+  if (!sessionStorage.getItem('unread_knowledge')) setUnreadIds('knowledge', kbIds);
+
+  unreadAnn = getUnreadIds('announcements').filter(id => annIds.includes(id));
+  unreadKb = getUnreadIds('knowledge').filter(id => kbIds.includes(id));
+
+  const unreadCount = unreadAnn.length + unreadKb.length;
+  badge.textContent = unreadCount;
+  badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+
+  // Build notification list
+  let items = [];
+  if (announcements.length > 0) {
+    items.push('<li class="notification-header" style="font-size:14px;">Announcements</li>');
+    for (const a of announcements.slice(0, 5)) {
+      const isUnread = unreadAnn.includes(a.id || a.time || a.title);
+      items.push(`<li class="${isUnread ? 'notification-unread' : ''}" data-type="announcements" data-id="${a.id || a.time || a.title}"><b>${a.title}</b><br><span style='font-size:13px;'>${a.message}</span></li>`);
+    }
+  }
+  if (knowledge.length > 0) {
+    items.push('<li class="notification-header" style="font-size:14px;">Knowledge Updates</li>');
+    for (const k of knowledge.slice(0, 5)) {
+      const isUnread = unreadKb.includes(k.id || k.time || k.title);
+      items.push(`<li class="${isUnread ? 'notification-unread' : ''}" data-type="knowledge" data-id="${k.id || k.time || k.title}"><b>${k.title || 'Knowledge Update'}</b><br><span style='font-size:13px;'>${k.message || k.desc || ''}</span></li>`);
+    }
+  }
+  if (items.length === 0) {
+    items = ["<li class='notification-empty'>No new notifications</li>"];
+  }
+  list.innerHTML = items.join('');
+}
+
+function setupNotificationBell() {
+  const bell = document.getElementById('notificationBell');
+  const dropdown = document.getElementById('notificationDropdown');
+  const list = document.getElementById('notificationList');
+  if (!bell || !dropdown || !list) return;
+
+  let open = false;
+  bell.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (open) {
+      dropdown.classList.remove('show');
+      open = false;
+      return;
+    }
+    // Fetch and update notifications
+    const notifications = await fetchNotifications();
+    updateNotificationUI(notifications);
+    dropdown.classList.add('show');
+    open = true;
+  });
+
+  // Mark as read on click
+  list.addEventListener('click', (e) => {
+    const li = e.target.closest('li[data-type]');
+    if (!li) return;
+    const type = li.getAttribute('data-type');
+    const id = li.getAttribute('data-id');
+    let unread = getUnreadIds(type);
+    unread = unread.filter(x => x !== id);
+    setUnreadIds(type, unread);
+    li.classList.remove('notification-unread');
+    // Update badge
+    fetchNotifications().then(updateNotificationUI);
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && e.target !== bell) {
+      dropdown.classList.remove('show');
+      open = false;
+    }
+  });
+}
+
+// Add unread style
+const style = document.createElement('style');
+style.textContent = `.notification-unread { background: #e3f2fd !important; }`;
+document.head.appendChild(style);
+
+// Initialize notification bell on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', setupNotificationBell);
+// ================================
 // Infosys Portal - Frontend Script
 // ================================
 

@@ -1,0 +1,10 @@
+# Backend Dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production || npm install --legacy-peer-deps --production
+COPY backend/ ./backend/
+COPY public/ ./public/
+COPY docs/ ./docs/
+EXPOSE 3000
+CMD ["node", "backend/server.js"]

@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: webportal-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docs/uploads:/app/docs/uploads
+      - ./backend/activityLogs.json:/app/backend/activityLogs.json
+      - ./backend/announcements.json:/app/backend/announcements.json
+      - ./backend/fileMetadata.json:/app/backend/fileMetadata.json
+      - ./backend/knowledgeUpdates.json:/app/backend/knowledgeUpdates.json
+      - ./backend/knowledgeVersions.json:/app/backend/knowledgeVersions.json
+    env_file:
+      - .env
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: webportal-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/usr/share/nginx/html
+
+  db:
+    image: postgres:15-alpine
+    container_name: webportal-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chitti
+      POSTGRES_PASSWORD: examplepassword
+      POSTGRES_DB: kst_portal
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
