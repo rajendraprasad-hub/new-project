@@ -5,13 +5,37 @@
 
 ---
 
+## 🌐 How to Access Your Website
+
+### Step 1 — Start the server
+```bash
+npm install     # first time only
+npm start
+```
+
+### Step 2 — Open your browser
+| Setup | URL to open |
+|-------|-------------|
+| Default (self-signed certs present) | `https://localhost:3000` ← click **Advanced → Proceed** to bypass the browser warning |
+| No certs / HTTP mode | `http://localhost:3000` |
+
+The server automatically detects whether certs exist in `certs/` and uses HTTPS or falls back to HTTP. The terminal output shows the exact URL:
+```
+✅ Portal running at: https://localhost:3000
+```
+
+### Step 3 — Login
+Use an employee ID and password from `backend/users.json` (or the PostgreSQL `users` table).
+
+---
+
 ## 🚀 Quick Start
 
 ### For Development
 ```bash
 npm install
 npm start
-# Visit http://localhost:3000
+# Visit http://localhost:3000  (or https://localhost:3000 if certs exist)
 ```
 
 ### For Production
