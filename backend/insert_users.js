@@ -33,6 +33,15 @@ const users = [
     role: 'viewerAll',
     team: 'CIV',
     mustChangePassword: true
+  },
+  {
+    empId: '12345',
+    name: 'Test User',
+    // bcrypt hash of 'test123'
+    password: '$2b$10$YXOvzvK70s1Ys.nCdyeRUOjYxqg8kEkt6EHDaW6cMVniehSGSz3L6',
+    role: 'viewerAll',
+    team: 'TEST',
+    mustChangePassword: false
   }
 ];
 
