@@ -1,15 +1,21 @@
 const express = require("express");
 const path = require("path");
-// ...existing code...
 const session = require("express-session");
 const bcrypt = require("bcryptjs");
 const pool = require("./db");
+const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
-const https = require('https');
-const fs = require('fs');
-// ...existing code...
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'supersecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production', sameSite: 'lax' }
+}));
 
 // API: Announcements
 app.get("/api/announcements", (req, res) => {
@@ -65,76 +71,6 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
-const certPath = path.join(__dirname, '../certs/certificate.crt');
-const keyPath = path.join(__dirname, '../certs/private-key.pem');
-const options = {
-  key: fs.readFileSync(keyPath),
-  cert: fs.readFileSync(certPath)
-};
-
-// Start HTTPS server and print URL
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`✅ Portal running at: https://localhost:${PORT}`);
-});
-
-// API: Announcements
-app.get("/api/announcements", (req, res) => {
-  try {
-    const filePath = path.join(__dirname, "announcements.json");
-    const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-    res.json(data);
-  } catch (err) {
-    console.error("Announcements error:", err);
-    res.status(500).json({ error: "Server error loading announcements.", details: err.message });
-  }
-});
-
-// API: Knowledge Updates
-app.get("/api/knowledge", (req, res) => {
-  try {
-    const filePath = path.join(__dirname, "knowledgeUpdates.json");
-    const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-    res.json(data);
-  } catch (err) {
-    console.error("Knowledge error:", err);
-    res.status(500).json({ error: "Server error loading updates.", details: err.message });
-  }
-});
-
-// API: Admin Dashboard Stats (stub)
-app.get("/api/stats", (req, res) => {
-  try {
-    // Return dummy stats for now
-    res.json({ users: 10, logins: 50, uploads: 5 });
-  } catch (err) {
-    console.error("Stats error:", err);
-    res.status(500).json({ error: "Server error loading stats.", details: err.message });
-  }
-});
-
-// API: File Upload (stub)
-app.post("/api/upload", (req, res) => {
-  // Stub: Accepts file upload, but does not save
-  res.status(200).json({ status: "File upload stub. Implement actual upload logic." });
-});
-
-// API: Export CSV (stub)
-app.get("/api/export-csv", (req, res) => {
-  // Stub: Returns dummy CSV content
-  res.setHeader('Content-Type', 'text/csv');
-  res.setHeader('Content-Disposition', 'attachment; filename="export.csv"');
-  res.send("id,name,role\n1,Chitti,Admin\n2,Rajendra,User");
-});
-// ...existing code...
-
-app.use(express.json());
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'supersecret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false, sameSite: 'lax' } // Set to false for local dev, add SameSite
-}));
-
 // API: Get current logged-in user
 app.get("/api/me", (req, res) => {
   if (req.session && req.session.user) {
@@ -186,6 +122,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Place all API route definitions here (after app initialization)
-
-// ...existing code for static, docs, contact, default route, and HTTPS server...
+// Start HTTP server
+app.listen(PORT, () => {
+  console.log(`✅ Portal running at: http://localhost:${PORT}`);
+});
